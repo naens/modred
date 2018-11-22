@@ -1,0 +1,5 @@
+#+TITLE: Modred
+Modern editor
+
+* About
+Modern is a Modern editor implemented in Rust.
