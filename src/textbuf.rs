@@ -5,14 +5,16 @@ pub struct TextBuf {
 }
 
 impl TextBuf {
-    // insert some text 
-    fn insert(text: Vec<String>) {
+    // insert text at current position
+    // position = 0 => append first line
+    fn insert(&mut self, text: Vec<String>) {
         // TODO
     }
 
     // delete lines
-    fn delete_lines(n: u32) {
+    fn delete_lines(&mut self, n: u32) {
         // TODO
+        self.position = 0;
     }
 
     // delete chars
