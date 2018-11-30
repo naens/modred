@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct TextBuf {
     text: Vec<String>,
     line: usize,
@@ -6,7 +7,7 @@ pub struct TextBuf {
 
 impl TextBuf {
 
-    fn new() -> TextBuf {
+    pub fn new() -> TextBuf {
         TextBuf {
             text: vec![],
             line: 0,
