@@ -9,11 +9,11 @@ pub enum State {
 #[derive(Debug)]
 pub struct Control {
     textbuf: TextBuf,
-    state: State
+    state: State,
 }
 
 impl Control {
-    pub fn new() -> Control {
+    pub fn new(file_in: &str, file_out: &str) -> Control {
         let mut textbuf = TextBuf::new();
         Control {
             textbuf: textbuf,
