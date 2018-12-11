@@ -35,7 +35,7 @@ fn main() {
         let in_path =  Path::new(&args[1]);
         let in_name = OsStr::to_str(in_path.file_name().unwrap()).unwrap();
         if !in_path.exists() {
-            println!("File {} does not exist", in_name);
+            println!("Input file {} does not exist", in_name);
             return;
         }
         let out_path =  Path::new(&args[2]);
@@ -46,11 +46,15 @@ fn main() {
         } else {
             file_out.push_str(&args[2]);
         }
+        if Path::new(&file_out).exists() {
+            println!("Output file \"{}\" exists", file_out);
+            return;
+        }
     }
     println!("file_in={}, file_out={}", file_in, file_out);
-   
+
     let mut r1 = Editor::<()>::new();
-    let control = Control::new();
+    let control = Control::new(file_in, &file_out);
     loop {
         let prompt = control.get_prompt();
         let readline = r1.readline(prompt);
