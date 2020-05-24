@@ -1,0 +1,5 @@
+* TASKS
++ describe functionality
++ data structures specifications
++ readline specifications
++ readline implementation
