@@ -2,4 +2,4 @@
 Modern editor
 
 * About
-Modern is a Modern editor implemented in Rust.
+Modern is a Modern editor implemented in Forth.
