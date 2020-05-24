@@ -1,7 +1,0 @@
-[package]
-name = "modred"
-version = "0.1.0"
-authors = ["naens <naens@gmx.com>"]
-
-[dependencies]
-rustyline = "2.1.0"
