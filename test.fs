@@ -9,6 +9,8 @@ include do-edit.fs
 
 \ create structures
 create buf1 text-buffer% %allot drop
+
+\ TODO: allocate lines and strings dynamically, so that they can be freed.
 create line1 line% %allot drop
 create line2 line% %allot drop
 create line3 line% %allot drop
@@ -41,3 +43,7 @@ line3 line-text here swap ! ," 3 line3text"
 line4 line-prev line3 swap !
 line4 line-next 0 swap !
 line4 line-text here swap ! ," 4."
+
+
+\ test editing functionality
+buf1 do-edit
