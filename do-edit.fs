@@ -15,13 +15,12 @@
 
 \ editor variables
 create edit-line-buffer 256 allot
-variable line-pos
-variable line-ptr
+variable line-pos \ cursor column in current line
+variable line-ptr \ pointer to current line
+variable line-num \ height of text
 
 \ basic functions
-: go-left ;
 : go-up ;
-: go-right ;
 : go-down ;
 : go-end-of-line ;
 : go-begin-of-line ;
@@ -31,11 +30,33 @@ variable line-ptr
 : split-line ;
 : merge-lines ;
 
+\ helper functions
+: string-move  ( string-address address-destination -- )
+   over c@ 1+ move ;
+
 \ editing commands
-: cmd-go-left ;
-: cmd-go-up ;
-: cmd-go-right ;
-: cmd-go-down ;
+: cmd-go-left
+   line-pos @ dup 0 > if 1- line-pos ! else drop then ;
+: cmd-go-up  ( buffer -- )
+   line-ptr @ line-prev @ 0<> if
+      -1 swap text-buffer-line +!
+      line-ptr @ line-prev @ line-ptr !
+      line-ptr @ line-text @ edit-line-buffer string-move
+      line-pos @ edit-line-buffer c@ min line-pos !
+   else
+      drop
+   then ;
+: cmd-go-right
+   line-pos @ dup edit-line-buffer c@ < if 1+ line-pos ! else drop then ;
+: cmd-go-down  ( buffer -- )
+   line-ptr @ line-next @ 0<> if
+      1 swap text-buffer-line +!
+      line-ptr @ line-next @ line-ptr !
+      line-ptr @ line-text @ edit-line-buffer string-move
+      line-pos @ edit-line-buffer c@ min line-pos !
+   else
+      drop
+   then ;
 : cmd-go-end-of-line ;
 : cmd-go-begin-of-line ;
 : cmd-insert-character ." insert" . ;
@@ -46,8 +67,29 @@ variable line-ptr
 
 \ intialize data
 : do-edit-init  ( text-buffer% -- text-buffer% )
-   \ TODO: initialize line pointer
-   \ TODO: copy current line into the buffer
+
+   0 line-num !
+   dup text-buffer-first-line @
+   begin
+      dup 0<> while
+
+      \ increase line counter
+      line-num @ 1+ line-num !
+
+      \ copy current line into the buffer
+      over text-buffer-line @ line-num @ = if
+         dup line-text @ edit-line-buffer string-move
+         dup line-ptr !
+      then
+
+      \ type line
+      dup line-text @ count cr type
+      line-next @
+   repeat
+   drop
+
+   \ check that current line is in buffer
+\   cr ." ---> " edit-line-buffer count type
 
    \ initialize line position
    0 line-pos ! ;
@@ -56,13 +98,15 @@ variable line-ptr
 : do-edit  ( text-buffer% -- )
    do-edit-init
    begin
+      dup text-buffer-line @ ( buffer current-line-number )
+      form drop + line-pos @ swap line-num @ - 1- at-xy
       ekey dup ctrl-q <> while
       dup
       case
          ctrl-s of cmd-go-left drop endof
-         ctrl-e of cmd-go-up drop endof
+         ctrl-e of over cmd-go-up drop endof
          ctrl-d of cmd-go-right drop endof
-         ctrl-x of cmd-go-down drop endof
+         ctrl-x of over cmd-go-down drop endof
          cmd-insert-character
       endcase
    repeat drop ;
