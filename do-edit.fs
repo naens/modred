@@ -11,6 +11,7 @@
 8 constant ctrl-h
 10 constant ctrl-j
 25 constant ctrl-y
+20 constant line-max-length
 
 
 \ editor variables
@@ -59,11 +60,28 @@ variable line-num \ height of text
    then ;
 : cmd-go-end-of-line ;
 : cmd-go-begin-of-line ;
-: cmd-insert-character ." insert" . ;
+: cmd-insert-character
+   line-pos @ line-max-length < if
+      edit-line-buffer line-pos @ + 1+ dup 1+
+      edit-line-buffer c@ line-pos @ - move
+      edit-line-buffer 1+ line-pos @ + c!
+      edit-line-buffer c@ 1+ edit-line-buffer c!
+      line-pos @ 1+ line-pos !
+   then ;
 : cmd-delete-left ;
 : cmd-delete-right ;
 : cmd-split-line-left ;
 : cmd-split-line-right ;
+
+: update-text ( text-buffer% -- )
+   0 form drop line-num @ - 1- at-xy
+   dup text-buffer-first-line @
+   begin
+      dup 0<> while
+      dup line-text @ count cr type ." |||"
+      line-next @
+   repeat
+   drop ;
 
 \ intialize data
 : do-edit-init  ( text-buffer% -- text-buffer% )
@@ -109,4 +127,5 @@ variable line-num \ height of text
          ctrl-x of over cmd-go-down drop endof
          cmd-insert-character
       endcase
+      update-text
    repeat drop ;
