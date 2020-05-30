@@ -34,8 +34,14 @@ variable line-num \ height of text
 \ helper functions
 : string-move  ( string-address address-destination -- )
    over c@ 1+ move ;
+: current-line-length  ( -- n )
+   edit-line-buffer c@ ;
+: first-line?  ( -- flag )
+   line-ptr @ line-prev @ 0<> ;
+: last-line?  ( -- flag )
+   line-ptr @ line-next @ 0<> ;
 
-\ editing commands
+\ navigation commands
 : cmd-go-left
    line-pos @ dup 0 > if 1- line-pos ! else drop then ;
 : cmd-go-up  ( buffer -- )
@@ -43,33 +49,59 @@ variable line-num \ height of text
       -1 swap text-buffer-line +!
       line-ptr @ line-prev @ line-ptr !
       line-ptr @ line-text @ edit-line-buffer string-move
-      line-pos @ edit-line-buffer c@ min line-pos !
+      line-pos @ current-line-length min line-pos !
    else
       drop
    then ;
 : cmd-go-right
-   line-pos @ dup edit-line-buffer c@ < if 1+ line-pos ! else drop then ;
+   line-pos @ dup current-line-length < if 1+ line-pos ! else drop then ;
 : cmd-go-down  ( buffer -- )
    line-ptr @ line-next @ 0<> if
       1 swap text-buffer-line +!
       line-ptr @ line-next @ line-ptr !
       line-ptr @ line-text @ edit-line-buffer string-move
-      line-pos @ edit-line-buffer c@ min line-pos !
+      line-pos @ current-line-length min line-pos !
    else
       drop
    then ;
 : cmd-go-end-of-line ;
 : cmd-go-begin-of-line ;
+
+\ editing commands
+: update-line  ( -- )
+   form . line-num -
+   0 0 at-xy \ TODO: fix
+   edit-line-buffer count type ;
 : cmd-insert-character
    line-pos @ line-max-length < if
       edit-line-buffer line-pos @ + 1+ dup 1+
-      edit-line-buffer c@ line-pos @ - move
+      current-line-length line-pos @ - move
       edit-line-buffer 1+ line-pos @ + c!
-      edit-line-buffer c@ 1+ edit-line-buffer c!
+      current-line-length 1+ edit-line-buffer c!
       line-pos @ 1+ line-pos !
+      update-line
    then ;
-: cmd-delete-left ;
-: cmd-delete-right ;
+: cmd-delete-left
+   line-pos @ 0> if
+      -1 line-pos 1+
+      delete-character
+      update-line
+   else
+      line-pos @ 0= first-line? and if
+         \ merge lines to the left
+         update-line
+      then
+   then ;
+: cmd-delete-right 
+   line-pos @ current-line-length < if
+      delete-character
+      update-line
+   else
+      line-pos @ current-line-length = last-line? and if
+         \ merge lines to the right
+         update-line
+      then
+   then ;
 : cmd-split-line-left ;
 : cmd-split-line-right ;
 
@@ -127,5 +159,4 @@ variable line-num \ height of text
          ctrl-x of over cmd-go-down drop endof
          cmd-insert-character
       endcase
-      update-text
    repeat drop ;
