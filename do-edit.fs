@@ -150,7 +150,7 @@ variable line-num \ height of text
    begin
       dup text-buffer-line @ ( buffer current-line-number )
       form drop + line-pos @ swap line-num @ - 1- at-xy
-      ekey dup ctrl-q <> while
+      ekey dup ctrl-z <> while
       dup
       case
          ctrl-s of cmd-go-left drop endof
