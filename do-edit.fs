@@ -18,7 +18,8 @@
 create edit-line-buffer 256 allot
 variable line-pos \ cursor column in current line
 variable line-ptr \ pointer to current line
-variable line-num \ height of text
+variable line-num \ current line number
+variable text-height \ height of text
 
 \ basic functions
 : go-up ;
@@ -69,7 +70,7 @@ variable line-num \ height of text
 
 \ editing commands
 : update-line  ( -- )
-   form . line-num -
+   form . text-height -
    0 0 at-xy \ TODO: fix
    edit-line-buffer count type ;
 : cmd-insert-character
@@ -106,7 +107,7 @@ variable line-num \ height of text
 : cmd-split-line-right ;
 
 : update-text ( text-buffer% -- )
-   0 form drop line-num @ - 1- at-xy
+   0 form drop text-height @ - 1- at-xy
    dup text-buffer-first-line @
    begin
       dup 0<> while
@@ -116,36 +117,27 @@ variable line-num \ height of text
    drop ;
 
 \ intialize data
-: do-edit-init  ( text-buffer% -- text-buffer% )
+: do-edit-init  ( string length -- text-buffer% )
 
-   0 line-num !
-   dup text-buffer-first-line @
-   begin
-      dup 0<> while
+   1 text-height !
 
-      \ increase line counter
-      line-num @ 1+ line-num !
+  \ copy current line into the temporary buffer
+   edit-line-buffer swap string-move
 
-      \ copy current line into the buffer
-      over text-buffer-line @ line-num @ = if
-         dup line-text @ edit-line-buffer string-move
-         dup line-ptr !
-      then
+   \ create the line structure
+   line% %size allocate drop line-ptr !
+   \ TODO: copy text into the structure
 
-      \ type line
-      dup line-text @ count cr type
-      line-next @
-   repeat
-   drop
 
-   \ check that current line is in buffer
-\   cr ." ---> " edit-line-buffer count type
+   \ type line
+   0 form drop 1- at-xy
+   edit-line-buffer count type
 
    \ initialize line position
    0 line-pos ! ;
 
 \ edit: process keyboard events until ^Z is pressed
-: do-edit  ( text-buffer% -- )
+: do-edit  ( string length -- line% )
    do-edit-init
    begin
       dup text-buffer-line @ ( buffer current-line-number )
