@@ -3,3 +3,11 @@ Modern editor
 
 * About
 Modern is a Modern editor implemented in Forth.
+It's a line editor.  I will try to maintain the compatibility with the
+ED editor from the CP/M operating system by Digital Research.
+
+* Features
+  + Concurrent DOS keybindings 
+  + Editing of multiple files
+  + Will try to make it customizable and extensible using the FORTH
+    programming language
