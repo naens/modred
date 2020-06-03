@@ -10,7 +10,9 @@ s" stty -g" r/o open-pipe throw slurp-fid 2constant terminal-state
 s" stty intr undef; stty susp undef" system
 
 \ test editing functionality
-buf1 do-edit "0123456789" 10
+s" 0123456789" do-edit
 
 \ restore terminal
 s" stty " terminal-state s+ system
+page
+
