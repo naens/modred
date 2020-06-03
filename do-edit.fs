@@ -33,8 +33,6 @@ variable text-height \ height of text
 : merge-lines ;
 
 \ helper functions
-: string-move  ( string-address address-destination -- )
-   over c@ 1+ move ;
 : current-line-length  ( -- n )
    edit-line-buffer c@ ;
 : first-line?  ( -- flag )
@@ -49,7 +47,7 @@ variable text-height \ height of text
    line-ptr @ line-prev @ 0<> if
       -1 swap text-buffer-line +!
       line-ptr @ line-prev @ line-ptr !
-      line-ptr @ line-text @ edit-line-buffer string-move
+\ TODO      line-ptr @ line-text @ edit-line-buffer string-move
       line-pos @ current-line-length min line-pos !
    else
       drop
@@ -60,7 +58,7 @@ variable text-height \ height of text
    line-ptr @ line-next @ 0<> if
       1 swap text-buffer-line +!
       line-ptr @ line-next @ line-ptr !
-      line-ptr @ line-text @ edit-line-buffer string-move
+\ TODO      line-ptr @ line-text @ edit-line-buffer string-move
       line-pos @ current-line-length min line-pos !
    else
       drop
@@ -70,8 +68,7 @@ variable text-height \ height of text
 
 \ editing commands
 : update-line  ( -- )
-   form . text-height -
-   0 0 at-xy \ TODO: fix
+   0 form drop text-height @ - line-num @ + at-xy
    edit-line-buffer count type ;
 : cmd-insert-character
    line-pos @ line-max-length < if
@@ -122,26 +119,31 @@ variable text-height \ height of text
    1 text-height !
 
   \ copy current line into the temporary buffer
-   edit-line-buffer swap string-move
+   cr .s cr
+   ( s l )
+   edit-line-buffer 2dup ! ( s l b )
+   1+ swap move
 
    \ create the line structure
    line% %size allocate drop line-ptr !
-   \ TODO: copy text into the structure
-
+   line-ptr @ line-prev 0 swap !
+   line-ptr @ line-next 0 swap !
+   line-ptr @ line-text 0 swap !  \ 0: no text yet
 
    \ type line
    0 form drop 1- at-xy
    edit-line-buffer count type
 
    \ initialize line position
+   1 line-num ! \ count lines from 1 and characters from 0
    0 line-pos ! ;
 
 \ edit: process keyboard events until ^Z is pressed
 : do-edit  ( string length -- line% )
    do-edit-init
    begin
-      dup text-buffer-line @ ( buffer current-line-number )
-      form drop + line-pos @ swap line-num @ - 1- at-xy
+\      dup text-buffer-line @ ( buffer current-line-number )
+      line-num form drop + line-pos @ swap line-num @ - 1- at-xy
       ekey dup ctrl-z <> while
       dup
       case
