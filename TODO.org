@@ -1,5 +1,6 @@
 * TASKS
-+ describe functionality
-+ data structures specifications
-+ readline specifications
-+ readline implementation
++ implement editing of current part of text
++ read file into a new buffer
++ save file
++ read multiple file and switch between files + save files
++ implement keybindings for multiple files
