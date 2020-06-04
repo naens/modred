@@ -27,7 +27,14 @@ variable text-height \ height of text
 : go-end-of-line ;
 : go-begin-of-line ;
 : insert-character ;
-: delete-character ;
+: delete-character
+   \ TODO: delete character at pos and reduce size
+   edit-line-buffer 1+ line-pos @ +  ( to )
+   dup 1+ swap                       ( from to )
+   edit-line-buffer c@ line-pos @ -  ( from to len )
+   move
+   -1 edit-line-buffer c@ + edit-line-buffer c! \ decrease length
+   ;
 : delete-line ;
 : split-line ;
 : merge-lines ;
@@ -69,7 +76,8 @@ variable text-height \ height of text
 \ editing commands
 : update-line  ( -- )
    0 form drop text-height @ - line-num @ + at-xy
-   edit-line-buffer count type ;
+   edit-line-buffer count type
+   form swap drop edit-line-buffer c@ - 0 do space loop ;
 : cmd-insert-character
    line-pos @ line-max-length < if
       edit-line-buffer line-pos @ + 1+ dup 1+
@@ -81,7 +89,7 @@ variable text-height \ height of text
    then ;
 : cmd-delete-left
    line-pos @ 0> if
-      -1 line-pos 1+
+      -1 line-pos +!
       delete-character
       update-line
    else
@@ -151,6 +159,8 @@ variable text-height \ height of text
          ctrl-e of over cmd-go-up drop endof
          ctrl-d of cmd-go-right drop endof
          ctrl-x of over cmd-go-down drop endof
+         ctrl-h of cmd-delete-left drop endof
+         ctrl-g of cmd-delete-right drop endof
          cmd-insert-character
       endcase
    repeat drop ;
