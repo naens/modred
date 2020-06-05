@@ -127,7 +127,6 @@ variable text-height \ height of text
    1 text-height !
 
   \ copy current line into the temporary buffer
-   cr .s cr
    ( s l )
    edit-line-buffer 2dup ! ( s l b )
    1+ swap move
@@ -146,6 +145,11 @@ variable text-height \ height of text
    1 line-num ! \ count lines from 1 and characters from 0
    0 line-pos ! ;
 
+: ascii-printable? ( c -- ? )
+   dup bl >=
+   swap [char] ~ <=
+   and ;
+
 \ edit: process keyboard events until ^Z is pressed
 : do-edit  ( string length -- line% )
    do-edit-init
@@ -161,6 +165,10 @@ variable text-height \ height of text
          ctrl-x of over cmd-go-down drop endof
          ctrl-h of cmd-delete-left drop endof
          ctrl-g of cmd-delete-right drop endof
-         cmd-insert-character
+         dup ascii-printable? if
+            cmd-insert-character
+         else
+            drop
+         then
       endcase
    repeat drop ;
