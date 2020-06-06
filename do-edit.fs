@@ -17,6 +17,7 @@
 \ editor variables
 create edit-line-buffer 256 allot
 variable line-pos \ cursor column in current line
+variable first-line \ cursor to the first line
 variable line-ptr \ pointer to current line
 variable line-num \ current line number
 variable text-height \ height of text
@@ -36,7 +37,17 @@ variable text-height \ height of text
    -1 edit-line-buffer c@ + edit-line-buffer c! \ decrease length
    ;
 : delete-line ;
-: split-line ;
+
+\ Synchronize structures with the buffer,
+\ while splitting the line at cursor.
+\ the buffer and the variables are not updated
+: split-line
+   \ TODO: allocate space for text in the current line structure
+   \ TODO: move the first half of the buffer to current line structure
+   \ TODO: create structure for the next line
+   \ TODO: allocate space for text in the next line structure
+   \ TODO: move the second half of the buffer to the next line structure
+   ;
 : merge-lines ;
 
 \ helper functions
@@ -108,8 +119,17 @@ variable text-height \ height of text
          update-line
       then
    then ;
-: cmd-split-line-left ;
-: cmd-split-line-right ;
+: cmd-split-line-left
+   split-line
+   \ TODO: shift second half of the buffer to the beginning
+   \ TODO: set lineptr to next
+   \ TODO: set cursor position to 0
+   \ TODO: increment current line number
+   ;
+: cmd-split-line-right
+   split-line
+   \ TODO: truncate buffer to cursor position
+   ;
 
 : update-text ( text-buffer% -- )
    0 form drop text-height @ - 1- at-xy
@@ -136,6 +156,7 @@ variable text-height \ height of text
    line-ptr @ line-prev 0 swap !
    line-ptr @ line-next 0 swap !
    line-ptr @ line-text 0 swap !  \ 0: no text yet
+   line-ptr @ first-line !
 
    \ type line
    0 form drop 1- at-xy
@@ -165,6 +186,8 @@ variable text-height \ height of text
          ctrl-x of over cmd-go-down drop endof
          ctrl-h of cmd-delete-left drop endof
          ctrl-g of cmd-delete-right drop endof
+         ctrl-m of cmd-split-right drop endof
+         ctrl-n of cmd-split-left drop endof
          dup ascii-printable? if
             cmd-insert-character
          else
