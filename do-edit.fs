@@ -1,3 +1,8 @@
+\ do-edit is a word that receives a string and returns a linked list
+\ of lines of text.  Each linked list is a structure of type line% .
+\ Editing one line can create multiple lines by splitting lines.
+\ A line can be split with ^M and with ^N
+
 \ editor constants
 17 constant ctrl-q
 26 constant ctrl-z
