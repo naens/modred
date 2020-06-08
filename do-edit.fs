@@ -34,13 +34,11 @@ variable text-height \ height of text
 : go-begin-of-line ;
 : insert-character ;
 : delete-character
-   \ TODO: delete character at pos and reduce size
    edit-line-buffer 1+ line-pos @ +  ( to )
    dup 1+ swap                       ( from to )
    edit-line-buffer c@ line-pos @ -  ( from to len )
    move
-   -1 edit-line-buffer c@ + edit-line-buffer c! \ decrease length
-   ;
+   -1 edit-line-buffer c@ + edit-line-buffer c! \ decrease length ;
 : delete-line ;
 
 \ Synchronize structures with the buffer,
@@ -48,9 +46,11 @@ variable text-height \ height of text
 \ the buffer and the variables are not updated
 : split-line
    \ TODO: allocate space for text in the current line structure
+   line-ptr @ line-text here swap ! line-pos @ allot
    \ TODO: move the first half of the buffer to current line structure
    \ TODO: create structure for the next line
    \ TODO: allocate space for text in the next line structure
+   line-ptr @ line-text here swap ! edit-line-buffer c@ line-pos @ - allot
    \ TODO: move the second half of the buffer to the next line structure
    ;
 : merge-lines ;
