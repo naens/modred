@@ -18,6 +18,8 @@
 25 constant ctrl-y
 20 constant line-max-length
 
+16 constant init-line-size
+
 
 \ editor variables
 create edit-line-buffer 256 allot
@@ -160,7 +162,15 @@ variable text-height \ height of text
    line% %size allocate drop line-ptr !
    line-ptr @ line-prev 0 swap !
    line-ptr @ line-next 0 swap !
-   line-ptr @ line-text 0 swap !  \ 0: no text yet
+
+   \ create empty first line
+      \ allocate init-line-size bytes
+   init-line-size allocate drop
+      \ set first byte to zero
+   0 over c!
+      \ set line-text to this value
+   line-ptr @ line-text !
+      \ set first line pointer
    line-ptr @ first-line !
 
    \ type line
