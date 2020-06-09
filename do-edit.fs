@@ -40,7 +40,8 @@ variable text-height \ height of text
    dup 1+ swap                       ( from to )
    edit-line-buffer c@ line-pos @ -  ( from to len )
    move
-   -1 edit-line-buffer c@ + edit-line-buffer c! \ decrease length ;
+  \ decrease length
+   -1 edit-line-buffer c@ + edit-line-buffer c! ;
 : delete-line ;
 
 \ Synchronize structures with the buffer,
@@ -201,8 +202,8 @@ variable text-height \ height of text
          ctrl-x of over cmd-go-down drop endof
          ctrl-h of cmd-delete-left drop endof
          ctrl-g of cmd-delete-right drop endof
-         ctrl-m of cmd-split-right drop endof
-         ctrl-n of cmd-split-left drop endof
+         ctrl-m of cmd-split-line-right drop endof
+         ctrl-n of cmd-split-line-left drop endof
          dup ascii-printable? if
             cmd-insert-character
          else
