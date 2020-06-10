@@ -199,7 +199,7 @@ variable text-height \ height of text
 \ synchronizes the buffer
 \ returns the first line and the relative line number (from 0)
 \ TODO: test
-: leave-edit ( -- line% n )
+: leave-edit ( -- line% n ) \ to test: drop line-text count type
    \ write text from edit-line-buffer to current line
    \ reallocate space for text in current line
    edit-line-buffer c@ 1+ ( sz ) \ get the size of the string
@@ -208,7 +208,7 @@ variable text-height \ height of text
    cr ." stack before resize: " .s cr
    resize drop ( new-addr )
    line-ptr @ line-text ! \  set new address of the string
-key
+
    \ copy the string (length & bytes)
    edit-line-buffer dup c@ 1+ line-ptr @ line-text swap move
 

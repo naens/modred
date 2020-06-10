@@ -14,5 +14,7 @@ s" 0123456789" do-edit
 
 \ restore terminal
 s" stty " terminal-state s+ system
-page
+
+quit
+\ page
 
