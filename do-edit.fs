@@ -26,7 +26,7 @@ create edit-line-buffer 256 allot
 variable line-pos \ cursor column in current line
 variable first-line \ cursor to the first line
 variable line-ptr \ pointer to current line
-variable line-num \ current line number
+variable line-num \ current line number (relative, starting from 0)
 variable text-height \ height of text
 
 \ basic functions
@@ -166,13 +166,22 @@ variable text-height \ height of text
 
    \ create empty first line
       \ allocate init-line-size bytes
-   init-line-size allocate drop
+   init-line-size allocate
+   \ DEBUG
+   cr ." stack after allocation: " .s cr
+   drop
       \ set first byte to zero
    0 over c!
+   cr .s cr
       \ set line-text to this value
    line-ptr @ line-text !
       \ set first line pointer
    line-ptr @ first-line !
+
+   \ DEBUG
+   cr ." line-ptr -> line-text = "
+   line-ptr @ line-text @ .
+   cr
 
    \ type line
    0 form drop 1- at-xy
@@ -186,6 +195,24 @@ variable text-height \ height of text
    dup bl >=
    swap [char] ~ <=
    and ;
+
+\ synchronizes the buffer
+\ returns the first line and the relative line number (from 0)
+\ TODO: test
+: leave-edit ( -- line% n )
+   \ write text from edit-line-buffer to current line
+   \ reallocate space for text in current line
+   edit-line-buffer c@ 1+ ( sz ) \ get the size of the string
+   line-ptr @ line-text @ swap ( addr sz )
+   \ DEBUG
+   cr ." stack before resize: " .s cr
+   resize drop ( new-addr )
+   line-ptr @ line-text ! \  set new address of the string
+key
+   \ copy the string (length & bytes)
+   edit-line-buffer dup c@ 1+ line-ptr @ line-text swap move
+
+   first-line @ line-num @ ;
 
 \ edit: process keyboard events until ^Z is pressed
 : do-edit  ( string length -- line% )
@@ -210,4 +237,5 @@ variable text-height \ height of text
             drop
          then
       endcase
-   repeat drop ;
+   repeat drop
+   leave-edit ;
