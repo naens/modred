@@ -167,21 +167,13 @@ variable text-height \ height of text
    \ create empty first line
       \ allocate init-line-size bytes
    init-line-size allocate
-   \ DEBUG
-   cr ." stack after allocation: " .s cr
    drop
       \ set first byte to zero
    0 over c!
-   cr .s cr
       \ set line-text to this value
    line-ptr @ line-text !
       \ set first line pointer
    line-ptr @ first-line !
-
-   \ DEBUG
-   cr ." line-ptr -> line-text = "
-   line-ptr @ line-text @ .
-   cr
 
    \ type line
    0 form drop 1- at-xy
@@ -204,8 +196,6 @@ variable text-height \ height of text
    \ reallocate space for text in current line
    edit-line-buffer c@ 1+ ( sz ) \ get the size of the string
    line-ptr @ line-text @ swap ( addr sz )
-   \ DEBUG
-   cr ." stack before resize: " .s cr
    resize drop ( new-addr )
    line-ptr @ line-text ! \  set new address of the string
 
