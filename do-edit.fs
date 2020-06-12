@@ -26,7 +26,7 @@ create edit-line-buffer 256 allot
 variable line-pos \ cursor column in current line
 variable first-line \ cursor to the first line
 variable line-ptr \ pointer to current line
-variable line-num \ current line number (relative, starting from 0)
+variable line-num \ current line number (offset, starting from 0)
 variable text-height \ height of text
 
 \ basic functions
@@ -44,17 +44,41 @@ variable text-height \ height of text
    -1 edit-line-buffer c@ + edit-line-buffer c! ;
 : delete-line ;
 
+
 \ Synchronize structures with the buffer,
 \ while splitting the line at cursor.
 \ the buffer and the variables are not updated
+
+\ Splitting pseudocode:
+\ A  lptr.text := resize to lpos+1
+\    lptr.text[0] := lpos
+\    copy elb+1 to lptr.text+1, lpos bytes
+\ B  create new line%
+\    new.prev := lptr
+\    new.next := lptr.next
+\    lptr.next := new
+\ C  new.text := allocate elb[0]-lpos+1
+\    new.text[0] := elb[0]-lpos
+\    copy elb+lpos+1 to new.text+1, elb[0]-lpos bytes
 : split-line
-   \ TODO: allocate space for text in the current line structure
-   line-ptr @ line-text here swap ! line-pos @ allot
-   \ TODO: move the first half of the buffer to current line structure
-   \ TODO: create structure for the next line
-   \ TODO: allocate space for text in the next line structure
-   line-ptr @ line-text here swap ! edit-line-buffer c@ line-pos @ - allot
-   \ TODO: move the second half of the buffer to the next line structure
+   \ allocate space for text in the current line structure
+   line-pos @ dup line-ptr @ line-text over 1+ resize ( lpos lpos lptr.text )
+   c! ( lpos )
+   \ move the first half of the buffer to current line structure
+   edit-line-buffer 1+ swap ( elb+1 lpos )
+   line-ptr @ 1+ swap ( elb+1 lptr.text+1 lpos )
+   move
+
+   \ create structure for the next line
+   line% %size allocate drop
+   dup line-prev line-ptr @ swap !
+   dup line-next 0 swap !
+
+   \ allocate space for text in the next line structure
+   dup line-text here swap ! edit-line-buffer c@ line-pos @ - allot
+   \ move the second half of the buffer to the next line structure
+   ( from to n )
+   move
    ;
 : merge-lines ;
 
@@ -127,17 +151,27 @@ variable text-height \ height of text
          update-line
       then
    then ;
-: cmd-split-line-left
+: cmd-split-line-left \ ^N, stay on same line
    split-line
-   \ TODO: shift second half of the buffer to the beginning
-   \ TODO: set lineptr to next
-   \ TODO: set cursor position to 0
-   \ TODO: increment current line number
-   ;
-: cmd-split-line-right
+   \ truncate buffer to cursor position
+   line-pos edit-line-buffer c! ;
+: cmd-split-line-right \ ^M, go to next line
    split-line
-   \ TODO: truncate buffer to cursor position
-   ;
+
+   \ set lineptr to next
+   line-ptr @ line-next @ line-ptr !
+
+   \ set cursor position to 0
+   0 line-pos !
+
+   \ increment current line number
+   1 line-num +! 
+
+   \ copy text to buffer
+   line-ptr @ line-text ( from )
+   dup c@ 1+ ( from n )
+   edit-line-buffer swap ( from to n )
+   move ;
 
 : update-text ( text-buffer% -- )
    0 form drop text-height @ - 1- at-xy
@@ -180,7 +214,7 @@ variable text-height \ height of text
    edit-line-buffer count type
 
    \ initialize line position
-   1 line-num ! \ count lines from 1 and characters from 0
+   0 line-num ! 
    0 line-pos ! ;
 
 : ascii-printable? ( c -- ? )
