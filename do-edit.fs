@@ -49,37 +49,6 @@ variable text-height \ height of text
 \ while splitting the line at cursor.
 \ the buffer and the variables are not updated
 
-\ Splitting pseudocode:
-\ A  lptr.text := resize to lpos+1
-\    lptr.text[0] := lpos
-\    copy elb+1 to lptr.text+1, lpos bytes
-\ B  create new line%
-\    new.prev := lptr
-\    new.next := lptr.next
-\    lptr.next := new
-\ C  new.text := allocate elb[0]-lpos+1
-\    new.text[0] := elb[0]-lpos
-\    copy elb+lpos+1 to new.text+1, elb[0]-lpos bytes
-: split-line
-   \ allocate space for text in the current line structure
-   line-pos @ dup line-ptr @ line-text over 1+ resize ( lpos lpos lptr.text )
-   c! ( lpos )
-   \ move the first half of the buffer to current line structure
-   edit-line-buffer 1+ swap ( elb+1 lpos )
-   line-ptr @ 1+ swap ( elb+1 lptr.text+1 lpos )
-   move
-
-   \ create structure for the next line
-   line% %size allocate drop
-   dup line-prev line-ptr @ swap !
-   dup line-next 0 swap !
-
-   \ allocate space for text in the next line structure
-   dup line-text here swap ! edit-line-buffer c@ line-pos @ - allot
-   \ move the second half of the buffer to the next line structure
-   ( from to n )
-   move
-   ;
 : merge-lines ;
 
 \ helper functions
@@ -151,6 +120,52 @@ variable text-height \ height of text
          update-line
       then
    then ;
+
+\ SPLITTING
+\ Splitting pseudocode:
+\ A  lptr.text := resize to lpos+1
+\    lptr.text[0] := lpos
+\    copy elb+1 to lptr.text+1, lpos bytes
+\ B  create new line%
+\    new.prev := lptr
+\    new.next := lptr.next
+\    lptr.next := new
+\ C  new.text := allocate elb[0]-lpos+1
+\    new.text[0] := elb[0]-lpos
+\    copy elb+lpos+1 to new.text+1, elb[0]-lpos bytes
+: split-line
+   \ allocate space for text in the current line structure
+   line-pos @ dup line-ptr @ line-text @ over 1+ 
+   cr ." BEFORE RESIZE  " .s cr
+   ." line-ptr @ line-text @ . is " line-ptr @ line-text @ . cr
+   resize drop ( lpos lpos lptr.text )
+   cr .s cr
+   c! ( lpos )
+   \ move the first half of the buffer to current line structure
+   edit-line-buffer 1+ swap ( elb+1 lpos )
+   line-ptr @ 1+ swap ( elb+1 lptr.text+1 lpos )
+   cr .s cr
+   move
+
+   \ create structure for the next line
+   line% %size allocate drop
+   dup line-prev line-ptr @ swap !
+   dup line-next 0 swap ! ( new-line% )
+
+   \ allocate space for text in the next line structure
+   dup line-text ( new-line% new-text-ptr )
+   edit-line-buffer c@ line-pos @ - 1+ 
+   cr ." %%%" .s cr
+   allocate drop
+   cr ." ###" .s cr
+   ! ( new-line% )
+   \ move the second half of the buffer to the next line structure
+   line-text @ edit-line-buffer 1+ line-pos @ + swap ( from to )
+   cr ." :::" .s cr
+   edit-line-buffer c@ line-pos @ - ( from to n )
+   cr .s cr
+   move
+   ;
 : cmd-split-line-left \ ^N, stay on same line
    split-line
    \ truncate buffer to cursor position
@@ -201,11 +216,16 @@ variable text-height \ height of text
    \ create empty first line
       \ allocate init-line-size bytes
    init-line-size allocate
+   cr ." INIT ALLOCATE => " .s cr
    drop
       \ set first byte to zero
    0 over c!
+   .s cr
       \ set line-text to this value
-   line-ptr @ line-text !
+   line-ptr @ line-text 
+   .s cr
+   !
+   ." line-ptr @ line-text @ . is " line-ptr @ line-text @ . cr
       \ set first line pointer
    line-ptr @ first-line !
 
