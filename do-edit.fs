@@ -156,14 +156,14 @@ variable text-height \ height of text
    dup line-text ( new-line% new-text-ptr )
    edit-line-buffer c@ line-pos @ - 1+ 
    cr ." %%%" .s cr
-   allocate drop
+   allocate drop swap
    cr ." ###" .s cr
    ! ( new-line% )
    \ move the second half of the buffer to the next line structure
    line-text @ edit-line-buffer 1+ line-pos @ + swap ( from to )
    cr ." :::" .s cr
    edit-line-buffer c@ line-pos @ - ( from to n )
-   cr .s cr
+   cr ." @@@" .s cr
    move
    ;
 : cmd-split-line-left \ ^N, stay on same line
@@ -183,7 +183,7 @@ variable text-height \ height of text
    1 line-num +! 
 
    \ copy text to buffer
-   line-ptr @ line-text ( from )
+   line-ptr @ line-text @ ( from )
    dup c@ 1+ ( from n )
    edit-line-buffer swap ( from to n )
    move ;
