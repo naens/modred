@@ -8,6 +8,13 @@ ED editor from the CP/M operating system by Digital Research.
 
 * Features
   + Concurrent DOS keybindings 
+  + Multiple buffers: can correspond to different files, to different
+    content copied, to drafts...
   + Editing of multiple files
   + Will try to make it customizable and extensible using the FORTH
     programming language
+
+* Code Organization
+There are two main modules which correspond to the two modes:
+  + Insert mode: allows to input text directly into the buffer
+  + Command mode: allows to execute commands on buffers
