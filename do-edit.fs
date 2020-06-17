@@ -1,3 +1,9 @@
+\ ****h* Modred/Insert Mode
+\ FUNCTION
+\   Edit the memory buffer directly, by typing from the keyboard.
+\   Editinig ends with ^Z, and the control returns to the Command Mode.
+\ ******
+
 \ do-edit is a word that receives a string and returns a linked list
 \ of lines of text.  Each linked list is a structure of type line% .
 \ Editing one line can create multiple lines by splitting lines.
