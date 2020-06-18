@@ -31,7 +31,7 @@
 create edit-line-buffer 256 allot
 variable line-pos \ cursor column in current line
 variable first-line \ cursor to the first line
-variable line-ptr \ pointer to current line
+variable cursor \ pointer to current line
 variable line-num \ current line number (offset, starting from 0)
 variable text-height \ height of text
 
@@ -61,18 +61,18 @@ variable text-height \ height of text
 : current-line-length  ( -- n )
    edit-line-buffer c@ ;
 : first-line?  ( -- flag )
-   line-ptr @ line-prev @ 0<> ;
+   cursor @ line-prev @ 0<> ;
 : last-line?  ( -- flag )
-   line-ptr @ line-next @ 0<> ;
+   cursor @ line-next @ 0<> ;
 
 \ navigation commands
 : cmd-go-left
    line-pos @ dup 0 > if 1- line-pos ! else drop then ;
 : cmd-go-up  ( buffer -- )
-   line-ptr @ line-prev @ 0<> if
+   cursor @ line-prev @ 0<> if
       -1 swap text-buffer-line +!
-      line-ptr @ line-prev @ line-ptr !
-\ TODO      line-ptr @ line-text @ edit-line-buffer string-move
+      cursor @ line-prev @ cursor !
+\ TODO      cursor @ line-text @ edit-line-buffer string-move
       line-pos @ current-line-length min line-pos !
    else
       drop
@@ -80,10 +80,10 @@ variable text-height \ height of text
 : cmd-go-right
    line-pos @ dup current-line-length < if 1+ line-pos ! else drop then ;
 : cmd-go-down  ( buffer -- )
-   line-ptr @ line-next @ 0<> if
+   cursor @ line-next @ 0<> if
       1 swap text-buffer-line +!
-      line-ptr @ line-next @ line-ptr !
-\ TODO      line-ptr @ line-text @ edit-line-buffer string-move
+      cursor @ line-next @ cursor !
+\ TODO      cursor @ line-text @ edit-line-buffer string-move
       line-pos @ current-line-length min line-pos !
    else
       drop
@@ -141,21 +141,21 @@ variable text-height \ height of text
 \    copy elb+lpos+1 to new.text+1, elb[0]-lpos bytes
 : split-line
    \ allocate space for text in the current line structure
-   line-pos @ dup line-ptr @ line-text @ over 1+ 
+   line-pos @ dup cursor @ line-text @ over 1+ 
    cr ." BEFORE RESIZE  " .s cr
-   ." line-ptr @ line-text @ . is " line-ptr @ line-text @ . cr
+   ." cursor @ line-text @ . is " cursor @ line-text @ . cr
    resize drop ( lpos lpos lptr.text )
    cr .s cr
    c! ( lpos )
    \ move the first half of the buffer to current line structure
    edit-line-buffer 1+ swap ( elb+1 lpos )
-   line-ptr @ 1+ swap ( elb+1 lptr.text+1 lpos )
+   cursor @ 1+ swap ( elb+1 lptr.text+1 lpos )
    cr .s cr
    move
 
    \ create structure for the next line
    line% %size allocate drop
-   dup line-prev line-ptr @ swap !
+   dup line-prev cursor @ swap !
    dup line-next 0 swap ! ( new-line% )
 
    \ allocate space for text in the next line structure
@@ -180,7 +180,7 @@ variable text-height \ height of text
    split-line
 
    \ set lineptr to next
-   line-ptr @ line-next @ line-ptr !
+   cursor @ line-next @ cursor !
 
    \ set cursor position to 0
    0 line-pos !
@@ -189,7 +189,7 @@ variable text-height \ height of text
    1 line-num +! 
 
    \ copy text to buffer
-   line-ptr @ line-text @ ( from )
+   cursor @ line-text @ ( from )
    dup c@ 1+ ( from n )
    edit-line-buffer swap ( from to n )
    move ;
@@ -215,9 +215,9 @@ variable text-height \ height of text
    1+ swap move
 
    \ create the line structure
-   line% %size allocate drop line-ptr !
-   line-ptr @ line-prev 0 swap !
-   line-ptr @ line-next 0 swap !
+   line% %size allocate drop cursor !
+   cursor @ line-prev 0 swap !
+   cursor @ line-next 0 swap !
 
    \ create empty first line
       \ allocate init-line-size bytes
@@ -228,12 +228,12 @@ variable text-height \ height of text
    0 over c!
    .s cr
       \ set line-text to this value
-   line-ptr @ line-text 
+   cursor @ line-text 
    .s cr
    !
-   ." line-ptr @ line-text @ . is " line-ptr @ line-text @ . cr
+   ." cursor @ line-text @ . is " cursor @ line-text @ . cr
       \ set first line pointer
-   line-ptr @ first-line !
+   cursor @ first-line !
 
    \ type line
    0 form drop 1- at-xy
@@ -255,12 +255,12 @@ variable text-height \ height of text
    \ write text from edit-line-buffer to current line
    \ reallocate space for text in current line
    edit-line-buffer c@ 1+ ( sz ) \ get the size of the string
-   line-ptr @ line-text @ swap ( addr sz )
+   cursor @ line-text @ swap ( addr sz )
    resize drop ( new-addr )
-   line-ptr @ line-text ! \  set new address of the string
+   cursor @ line-text ! \  set new address of the string
 
    \ copy the string (length & bytes)
-   edit-line-buffer dup c@ 1+ line-ptr @ line-text swap move
+   edit-line-buffer dup c@ 1+ cursor @ line-text swap move
 
    first-line @ line-num @ ;
 
