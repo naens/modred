@@ -1,7 +1,7 @@
 \ test: input: a single string
 \       output: linked list of lines, relative line number
 include data.fs
-include insert-mode.fs
+include command-mode.fs
 
 \ display the text
 : display-text ( first-line% -- )
@@ -20,11 +20,17 @@ s" stty -g" r/o open-pipe throw slurp-fid 2constant terminal-state
 \ allow ctrl-z and ctrl-z
 s" stty intr undef; stty susp undef" system
 
+\ TODO: send message to the command mode to initialize
+\       a buffer containing the string "0123456789"
+
 \ test editing functionality
-s" 0123456789" insert-mode
+\ TODO: send message to the command mode to execute the following:
+\ s" 0123456789" insert-mode
 
 cr ." Line offset: " . cr
 ." Text: " cr
+\ TODO: send message to the command mode to display the text
+\       of the current buffer
 display-text
 ." ---END---"
 
