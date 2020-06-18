@@ -1,0 +1,20 @@
+#+TITLE: Glossary
+
+* Introduction
+This is the list of terms I use in the program.  Each editor has its own
+terminology it uses.  For example, what Emacs uses /point/, DRI ED uses
+/character pointer/, Zsh uses /cursor/, which might be in some aspects
+similar, but can also be different.  I had to choose what is better for my
+editor, because its organization is not a direct copy of any other editor. 
+So I had to choose the right words by myself.  So in this document I collect
+the words that have a special meaning in the program in order to facilitate
+the development and how it works.
+
+* List of terms
+  + block: in insert mode, the lines that are currently being edited
+  + buffer: sequence of lines, can correspond to a files or be independent
+  + current line: line being currently edited
+  + cursor: position on the current line where the editinig happens, starts
+            from 0
+  + line offset: in insert mode, number of the current line in the block being
+            edited, starts from zero
