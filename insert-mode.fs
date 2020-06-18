@@ -4,7 +4,7 @@
 \   Editinig ends with ^Z, and the control returns to the Command Mode.
 \ ******
 
-\ do-edit is a word that receives a string and returns a linked list
+\ insert-mode is a word that receives a string and returns a linked list
 \ of lines of text.  Each linked list is a structure of type line% .
 \ Editing one line can create multiple lines by splitting lines.
 \ A line can be split with ^M and with ^N
@@ -205,7 +205,7 @@ variable text-height \ height of text
    drop ;
 
 \ intialize data
-: do-edit-init  ( string length -- text-buffer% )
+: insert-mode-init  ( string length -- text-buffer% )
 
    1 text-height !
 
@@ -265,8 +265,8 @@ variable text-height \ height of text
    first-line @ line-num @ ;
 
 \ edit: process keyboard events until ^Z is pressed
-: do-edit  ( string length -- line% )
-   do-edit-init
+: insert-mode  ( string length -- line% )
+   insert-mode-init
    begin
 \      dup text-buffer-line @ ( buffer current-line-number )
       line-num form drop + line-pos @ swap line-num @ - 1- at-xy

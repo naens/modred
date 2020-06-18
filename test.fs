@@ -1,7 +1,7 @@
 \ test: input: a single string
 \       output: linked list of lines, relative line number
 include data.fs
-include do-edit.fs
+include insert-mode.fs
 
 \ display the text
 : display-text ( first-line% -- )
@@ -21,7 +21,7 @@ s" stty -g" r/o open-pipe throw slurp-fid 2constant terminal-state
 s" stty intr undef; stty susp undef" system
 
 \ test editing functionality
-s" 0123456789" do-edit
+s" 0123456789" insert-mode
 
 cr ." Line offset: " . cr
 ." Text: " cr
