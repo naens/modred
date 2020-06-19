@@ -1,9 +1,8 @@
 * TASKS
-+ read dri documents => describe vocabulary + make doc files with
-  definitions
-+ refactor: better names and shorter variables, comment words
-+ add ROBODoc documentation
-+ think about exceptions (don't drop!!!) => write in documentation
++ redefine the organization: separate the user interface from the api+data
++ update file names, write header comment for each forth file
++ update code to match the structure, update variable names
++ read about forth exceptions, learn how to handle them
 + implement editing of current part of text
 + read file into a new buffer
 + save file
