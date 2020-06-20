@@ -1,5 +1,6 @@
 * TASKS
 + redefine the organization: separate the user interface from the api+data
++ redefine the insert mode as an instance of the Buffer object
 + update file names, write header comment for each forth file
 + update code to match the structure, update variable names
 + read about forth exceptions, learn how to handle them
