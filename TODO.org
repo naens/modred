@@ -1,11 +1,6 @@
 * TASKS
-+ redefine the organization: separate the user interface from the api+data
-+ redefine the insert mode as an instance of the Buffer object
-+ update file names, write header comment for each forth file
-+ update code to match the structure, update variable names
-+ read about forth exceptions, learn how to handle them
-+ implement editing of current part of text
-+ read file into a new buffer
-+ save file
-+ read multiple file and switch between files + save files
++ implement the line module + add exception handling + test
++ implement the buffer module + add exceptoin handling + test
++ implement the insert-mode module
++ implement the command-mode module (with long, temporary commands)
 + implement keybindings for multiple files
