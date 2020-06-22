@@ -1,5 +1,10 @@
 \ data structures for the editor
 
+\ TODO: change name of line%.  It should be completely internal
+\       to the buffer module =?> move declaration to buffer.fs?
+\       can be renamed to buffer-line%, for example, and should
+\       be accessed from outside only throught buffer.fs words.
+
 \ Single line
 struct
    cell% field line-prev		\ previous line
