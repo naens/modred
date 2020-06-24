@@ -45,3 +45,6 @@ end-struct line%
 \ TODO: set string
 : line-set-string ( line% addr u -- )
    ;
+
+: line-get-string ( line% -- string )
+   line-text @ ;
