@@ -12,7 +12,12 @@
 
 constant line-chunk-size 16
 
-
+\ ****s* Line/line%
+\ FUNCTION
+\   Represents the line in the buffer.  Also contains
+\   the capacity in order to make reallocations less
+\   frequent.
+\ ******
 struct
     cell% field line-text
     cell% field line-length
