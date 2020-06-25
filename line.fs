@@ -10,7 +10,7 @@
 \   the capacity and the pointer to the string.
 \ ******
 
-constant line-chunk-size 16
+16 constant line-chunk-size
 
 \ ****s* Line/line%
 \ FUNCTION
@@ -28,9 +28,9 @@ end-struct line%
 \ initialize new empty line
 : line-new ( -- line% )
    line% %size allocate throw  \ TODO exception???
-  line-chunk-size allocate throw over line-text ! \ TODO exception???
+   line-chunk-size allocate throw over line-text ! \ TODO exception???
    0 over line-length !
-  line-chunk-size swap line-capacity !;
+   line-chunk-size over line-capacity ! ;
 
 
 \ TODO: insert character at
@@ -44,8 +44,8 @@ end-struct line%
 
 \ delete line
 : line-delete ( line% -- )
-   dup line-text @ free
-   free ;
+   dup line-text @ free drop
+   free drop ;
 
 \ TODO: set string
 : line-set-string ( line% addr u -- )
