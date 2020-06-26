@@ -47,8 +47,19 @@ end-struct line%
    dup line-text @ free drop
    free drop ;
 
-\ TODO: set string
+\ ****f* Line/line-set-string
+\ FUNCTION
+\   Set the string to the line.  Reallocates if necessary.
+\   If the string does not fit into the capacity, allocates
+\   a multiple of the minimum capacity number of bytes.
+\ PSEUDOCODE
+\   let c be minimum capacity
+\   If u < capacity then
+\      line.text := allocate(c*(u/c+1))
+\   end if
+\   copy string <addr-u> to line.text
 : line-set-string ( line% addr u -- )
+   
    ;
 
 : line-get-string ( line% -- string )
