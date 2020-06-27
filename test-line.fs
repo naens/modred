@@ -2,18 +2,24 @@
 
 include line.fs
 
-
-
-: test1 \ the new line should be empty
+: line-new-test
    line-new            ( line% )
    dup line-get-string ( line% string )
    swap line-delete    ( string )
    count nip 0= ;
 
-: test2 \ new line with a string inside
+\ TODO: line-insert-character-test
+\ TODO: line-delete-character-test
+\ TODO: line-delete-test
+
+: line-set-string-test \ new line with a string inside
    line-new                     ( line% )
    dup s" abcd" line-set-string ( line% )
    dup line-get-string          ( line% string )
    swap line-delete             ( string )
    count s" abcd" str= ;
    
+: test-line \ run all tests
+   line-new-test if ." line-new-test fail" cr then
+   line-set-string-test if ." line-set-string-test fail" cr then
+   ;
