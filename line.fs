@@ -53,14 +53,27 @@ end-struct line%
 \   If the string does not fit into the capacity, allocates
 \   a multiple of the minimum capacity number of bytes.
 \ PSEUDOCODE
-\   let c be minimum capacity
+\   let c be minimum capacity ("line-chunk-size")
 \   If u < capacity then
-\      line.text := allocate(c*(u/c+1))
+\      line.text := reallocate(((u+(c-1)) div c) * c)
 \   end if
 \   copy string <addr-u> to line.text
-: line-set-string ( line% addr u -- )
-   
-   ;
+: line-set-string       ( line% addr u -- )
+   dup 2over            ( line% addr u u line% addr )
+   -rot                 ( line% addr u addr u line% )
+   line-capacity @ over ( line% addr u capacity u )
+   > if                 ( line% addr u )
+      line-chunk-size   ( line% addr u c )
+      2dup              ( line% addr u c u c )
+      dup 1- rot +      ( line% addr u c c u+c-1 )
+      swap / *          ( line% addr u sz )
+      resize throw      ( line% addr u new )
+      3 pick line-text !
+   then                 ( line% addr u )
+   swap 1+              ( line% u addr+1 )
+   rot line-text @ 1+   ( u addr+1 line.text+1 )
+   -rot                 ( addr+1 line.text+1 u )
+   move ;
 
 : line-get-string ( line% -- string )
    line-text @ ;
