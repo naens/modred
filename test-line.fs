@@ -12,6 +12,14 @@ include line.fs
 \ TODO: line-delete-character-test
 \ TODO: line-delete-test
 
+\ TODO: line-ensure-capacity-test
+\ TODO:    -> test when new capacity = 0
+\ TODO:    -> test when new capacity < current 
+\ TODO:    -> test when new capacity = current
+\ TODO:    -> test when new capacity < current + line-chunk-size
+\ TODO:    -> test when new capacity > current + line-chunk-size
+\ TODO:    -> test when new capacity > 255 (illegal string)
+
 : line-set-string-test \ new line with a string inside
    line-new                     ( line% )
    dup s" abcd" line-set-string ( line% )
