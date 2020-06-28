@@ -47,32 +47,51 @@ end-struct line%
    dup line-text @ free drop
    free drop ;
 
+\ ****f* Line/line-ensure-capacity
+\ FUNCTION
+\   Ensure that the line has at least n capacity.
+\   Does nothing if there is enough capacity.
+\   Otherwise calculates the required capacity and
+\   allocates in the text.
+\ PSEUDOCODE
+\   if u < line.capacity then
+\      let c be line-chunk-size
+\      new_capacity := ((u+c-1)/c)*c
+\      line.text := resize(new_capacity)
+\      line.capacity := new_capacity
+\   end if
+\ ******
+: line-ensure-capacity ( line% u -- )
+   over line-capacity @   ( line% u capacity )
+   over > if              ( line% u )
+      line-chunk-size     ( line% u c )
+      swap over 1- +      ( line% c u+c-1 )
+      over / *            ( line% new_capacity )
+      2dup swap           ( line% new_capacity new_capacity line% )
+      line-capacity !     ( line% new_capacity )
+      over line-text @    ( line% new_capacity line-text )
+      resize throw        ( line% new_text )
+      swap line-text !    ( )
+   else                   ( line% u )
+      2drop
+   then ;
+   
+
 \ ****f* Line/line-set-string
 \ FUNCTION
 \   Set the string to the line.  Reallocates if necessary.
 \   If the string does not fit into the capacity, allocates
 \   a multiple of the minimum capacity number of bytes.
 \ PSEUDOCODE
-\   let c be minimum capacity ("line-chunk-size")
-\   If u < capacity then
-\      line.text := reallocate(((u+(c-1)) div c) * c)
-\   end if
-\   copy string <addr-u> to line.text
-: line-set-string       ( line% addr u -- )
-   dup 2over            ( line% addr u u line% addr )
-   -rot                 ( line% addr u addr u line% )
-   line-capacity @ over ( line% addr u capacity u )
-   > if                 ( line% addr u )
-      line-chunk-size   ( line% addr u c )
-      2dup              ( line% addr u c u c )
-      dup 1- rot +      ( line% addr u c c u+c-1 )
-      swap / *          ( line% addr u sz )
-      resize throw      ( line% addr u new )
-      3 pick line-text !
-   then                 ( line% addr u )
-   swap 1+              ( line% u addr+1 )
-   rot line-text @ 1+   ( u addr+1 line.text+1 )
-   -rot                 ( addr+1 line.text+1 u )
+\   line_ensure_capacity(line%, u)
+\   copy string <addr,u> to line.text
+\ ******
+: line-set-string  ( line% addr u -- )
+   rot swap 2dup swap   ( addr u line% line% u )
+   line-ensure-capacity ( addr u line% )
+   line-text @ 1+       ( addr u line-text+1 )
+   rot 1+               ( u line-text+1 addr+1 )
+   swap rot             ( addr+1 line.text+1 u )
    move ;
 
 : line-get-string ( line% -- string )
